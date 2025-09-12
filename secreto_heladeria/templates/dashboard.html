@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dashboard - Secreto Heladería</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff4757 0%,
+          #ffeaa7 50%,
+          #ffffff 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(255, 71, 87, 0.2);
+        position: relative;
+      }
+
+      .header h1 {
+        color: #ff4757;
+        font-size: 2.8em;
+        font-weight: 600;
+        text-shadow: 0 3px 6px rgba(255, 71, 87, 0.3);
+        margin-bottom: 10px;
+        font-family: "Georgia", serif;
+      }
+
+      .header .logo {
+        font-size: 3.5em;
+        margin-bottom: 15px;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .logout-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff4757);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .logout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+        background: linear-gradient(135deg, #e84393, #fd79a8);
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(255, 71, 87, 0.25);
+      }
+
+      .card h3 {
+        color: #ff4757;
+        margin-bottom: 20px;
+        font-size: 1.4em;
+        font-weight: 600;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-item {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        padding: 20px 15px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(255, 71, 87, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+      }
+
+      .stat-number {
+        font-size: 2.2em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.95em;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        overflow: hidden;
+      }
+
+      .transactions-table thead {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+      }
+
+      .transactions-table th {
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 500;
+        font-size: 1em;
+      }
+
+      .transactions-table tbody tr {
+        border-bottom: 1px solid rgba(255, 234, 167, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .transactions-table tbody tr:hover {
+        background: rgba(255, 234, 167, 0.2);
+        transform: translateX(5px);
+      }
+
+      .transactions-table td {
+        padding: 15px;
+        color: #333;
+        font-size: 0.95em;
+      }
+
+      .link-button {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .link-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+        text-decoration: none;
+        color: white;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: #636e72;
+        font-style: italic;
+        padding: 30px;
+        background: rgba(255, 234, 167, 0.2);
+        border-radius: 15px;
+        border: 2px dashed rgba(255, 234, 167, 0.5);
+      }
+
+      .income-positive {
+        color: #00b894;
+      }
+
+      .expense-negative {
+        color: #ff4757;
+      }
+
+      .floating-element {
+        position: fixed;
+        pointer-events: none;
+        opacity: 0.05;
+        animation: float 8s ease-in-out infinite;
+      }
+
+      .ice-cream-1 {
+        top: 10%;
+        left: 5%;
+        font-size: 4em;
+        animation-delay: 0s;
+      }
+
+      .ice-cream-2 {
+        top: 20%;
+        right: 10%;
+        font-size: 3em;
+        animation-delay: 3s;
+      }
+
+      .ice-cream-3 {
+        bottom: 20%;
+        left: 8%;
+        font-size: 2.5em;
+        animation-delay: 6s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-30px) rotate(10deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+        }
+        .floating-element {
+          display: none;
+        }
+        .logout-btn {
+          position: static;
+          margin-top: 15px;
+          width: 100%;
+        }
+        .header {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Elementos decorativos -->
+    <div class="floating-element ice-cream-1">🍦</div>
+    <div class="floating-element ice-cream-2">🍨</div>
+    <div class="floating-element ice-cream-3">🧊</div>
+
+    <div class="container">
+      <div class="header">
+        <div class="logo">🍨</div>
+        <h1>Secreto Heladería</h1>
+        <p>Panel de Control Financiero</p>
+
+        <!-- Botón de cerrar sesión -->
+        <form
+          method="post"
+          action="{% url 'logout' %}"
+          style="position: absolute; top: 20px; right: 20px"
+        >
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">🚪 Cerrar Sesión</button>
+        </form>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Estadísticas del día -->
+        <div class="card">
+          <h3>Resumen del Día</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">${{ ingresos_hoy|floatformat:0 }}</div>
+              <div class="stat-label">Ingresos</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">${{ gastos_hoy|floatformat:0 }}</div>
+              <div class="stat-label">Gastos</div>
+            </div>
+            <div class="stat-item">
+              <div
+                class="stat-number income-positive"
+                style="color: {% if utilidad_hoy >= 0 %}#00b894{% else %}white{% endif %}"
+              >
+                ${{ utilidad_hoy|floatformat:0 }}
+              </div>
+              <div class="stat-label">Utilidad</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="card">
+          <h3>Accesos Rápidos</h3>
+          <div style="display: grid; gap: 15px">
+            <a href="{% url 'finanzas:transacciones' %}" class="link-button">
+              📊 Ver Transacciones
+            </a>
+            <a href="{% url 'finanzas:productos' %}" class="link-button">
+              🍦 Gestionar Productos
+            </a>
+            <a href="{% url 'finanzas:reportes' %}" class="link-button">
+              📈 Ver Reportes
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transacciones recientes -->
+      <div class="card">
+        <h3>Transacciones Recientes</h3>
+        {% if transacciones %}
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Monto</th>
+              <th>Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for transaccion in transacciones %}
+            <tr>
+              <td>{{ transaccion.fecha|date:"d/m/Y H:i" }}</td>
+              <td>
+                <span
+                  style="color: {% if transaccion.tipo == 'ingreso' %}#00b894{% else %}#ff4757{% endif %}; font-weight: 600;"
+                >
+                  {{ transaccion.get_tipo_display }}
+                </span>
+              </td>
+              <td
+                style="font-weight: 700; font-size: 1.1em; color: {% if transaccion.tipo == 'ingreso' %}#00b894{% else %}#ff4757{% endif %};"
+              >
+                ${{ transaccion.monto }}
+              </td>
+              <td>{{ transaccion.descripcion|truncatewords:8 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          No hay transacciones registradas. ¡Empieza a registrar tus ventas!
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </body>
+</html>

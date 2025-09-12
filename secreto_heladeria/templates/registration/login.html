@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Iniciar Sesión - Secreto Heladería</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff4757 0%,
+          #ffeaa7 50%,
+          #ffffff 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .login-container {
+        max-width: 420px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(255, 71, 87, 0.2);
+        padding: 50px 40px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .logo {
+        font-size: 4em;
+        margin-bottom: 15px;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #ff4757;
+        font-size: 2.2em;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(255, 71, 87, 0.3);
+        margin-bottom: 10px;
+        font-family: "Georgia", serif;
+      }
+
+      .subtitle {
+        color: #636e72;
+        font-size: 1.1em;
+        margin-bottom: 25px;
+        font-weight: 400;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+        position: relative;
+      }
+
+      label {
+        display: block;
+        color: #2d3436;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 0.95em;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #ffeaa7;
+        border-radius: 15px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+        outline: none;
+        color: #2d3436;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: #ff4757;
+        box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1);
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-1px);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(255, 71, 87, 0.3);
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+        background: linear-gradient(135deg, #ff3742, #ff2f3a);
+      }
+
+      .btn:active {
+        transform: translateY(-1px);
+      }
+
+      .links {
+        text-align: center;
+      }
+
+      .links a {
+        color: #ff4757;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        margin: 15px 0;
+        transition: all 0.3s ease;
+        font-size: 0.95em;
+      }
+
+      .links a:hover {
+        color: #ff3742;
+        text-decoration: underline;
+        transform: translateY(-1px);
+      }
+
+      .divider {
+        margin: 30px 0;
+        text-align: center;
+        color: #b2bec3;
+        position: relative;
+      }
+
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #ffeaa7, transparent);
+        z-index: 1;
+      }
+
+      .divider span {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0 20px;
+        position: relative;
+        z-index: 2;
+        font-weight: 500;
+      }
+
+      .alert {
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .alert-error {
+        background: rgba(255, 71, 87, 0.1);
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        color: #d63031;
+      }
+
+      .alert-success {
+        background: rgba(0, 184, 148, 0.1);
+        border: 1px solid rgba(0, 184, 148, 0.3);
+        color: #00b894;
+      }
+
+      /* Decorative elements */
+      .floating-element {
+        position: fixed;
+        pointer-events: none;
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .ice-cream-1 {
+        top: 10%;
+        left: 10%;
+        font-size: 3em;
+        animation-delay: 0s;
+      }
+
+      .ice-cream-2 {
+        top: 20%;
+        right: 15%;
+        font-size: 2.5em;
+        animation-delay: 2s;
+      }
+
+      .ice-cream-3 {
+        bottom: 15%;
+        left: 15%;
+        font-size: 2em;
+        animation-delay: 4s;
+      }
+
+      .ice-cream-4 {
+        bottom: 25%;
+        right: 10%;
+        font-size: 3.5em;
+        animation-delay: 1s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
+
+      .demo-credentials {
+        background: rgba(255, 234, 167, 0.2);
+        border: 1px solid rgba(255, 234, 167, 0.5);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #636e72;
+        text-align: center;
+      }
+
+      .demo-credentials strong {
+        color: #ff4757;
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          margin: 10px;
+          padding: 40px 30px;
+          border-radius: 20px;
+        }
+
+        h1 {
+          font-size: 2em;
+        }
+
+        .logo {
+          font-size: 3.5em;
+        }
+
+        .floating-element {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Elementos decorativos flotantes -->
+    <div class="floating-element ice-cream-1">🍦</div>
+    <div class="floating-element ice-cream-2">🍨</div>
+    <div class="floating-element ice-cream-3">🧊</div>
+    <div class="floating-element ice-cream-4">🍓</div>
+
+    <div class="login-container">
+      <div class="header">
+        <div class="logo">🍨</div>
+        <h1>Secreto Heladería</h1>
+        <p class="subtitle">Sistema de Gestión Financiera</p>
+      </div>
+
+      <!-- Credenciales de demostración -->
+      <div class="demo-credentials">
+        
+
+      <!-- Mensajes de error/éxito -->
+      {% if messages %} {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %} {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="username">Usuario:</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            placeholder="Ingresa tu usuario"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            placeholder="Ingresa tu contraseña"
+          />
+        </div>
+
+        <button type="submit" class="btn">Iniciar Sesión</button>
+      </form>
+
+      <div class="divider">
+        <span>¿Necesitas ayuda?</span>
+      </div>
+
+      <div class="links">
+        <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+      </div>
+    </div>
+  </body>
+</html>

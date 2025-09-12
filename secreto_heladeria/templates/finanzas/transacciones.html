@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Transacciones - Secreto Heladería</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff4757 0%,
+          #ffeaa7 50%,
+          #ffffff 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(255, 71, 87, 0.2);
+        padding: 40px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 3px solid rgba(255, 234, 167, 0.4);
+      }
+
+      .header-icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        color: #ff4757;
+        font-size: 2.5em;
+        font-weight: 600;
+        text-shadow: 0 3px 6px rgba(255, 71, 87, 0.3);
+        margin-bottom: 10px;
+        font-family: 'Georgia', serif;
+      }
+
+      .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .transactions-table thead {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+      }
+
+      .transactions-table th {
+        color: white;
+        padding: 20px 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 1.1em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .transactions-table tbody tr {
+        border-bottom: 2px solid rgba(255, 234, 167, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .transactions-table tbody tr:hover {
+        background: rgba(255, 234, 167, 0.2);
+        transform: translateX(8px);
+        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.15);
+      }
+
+      .transactions-table tbody tr:last-child {
+        border-bottom: none;
+      }
+
+      .transactions-table td {
+        padding: 18px 15px;
+        color: #333;
+        font-size: 1em;
+        font-weight: 500;
+      }
+
+      .transaction-type {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+      }
+
+      .type-ingreso {
+        background: linear-gradient(135deg, #00b894, #00a085);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+      }
+
+      .type-gasto {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+      }
+
+      .amount-positive {
+        color: #00b894;
+        font-weight: 700;
+        font-size: 1.2em;
+      }
+
+      .amount-negative {
+        color: #ff4757;
+        font-weight: 700;
+        font-size: 1.2em;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 3px solid rgba(255, 234, 167, 0.4);
+      }
+
+      .btn-back {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(255, 71, 87, 0.3);
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-back:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+        text-decoration: none;
+        color: white;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: #636e72;
+        font-style: italic;
+        padding: 60px 40px;
+        background: rgba(255, 234, 167, 0.2);
+        border-radius: 20px;
+        border: 3px dashed rgba(255, 234, 167, 0.5);
+        font-size: 1.2em;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 25px;
+          margin: 10px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+          padding: 12px 8px;
+          font-size: 0.9em;
+        }
+
+        h1 {
+          font-size: 2em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">📊</div>
+        <h1>Registro de Transacciones</h1>
+        <p>Control detallado de ingresos y gastos</p>
+      </div>
+
+      {% if transacciones %}
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Categoría</th>
+            <th>Monto</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaccion in transacciones %}
+          <tr>
+            <td>{{ transaccion.fecha|date:"d/m/Y H:i" }}</td>
+            <td>
+              <span class="transaction-type {% if transaccion.tipo == 'ingreso' %}type-ingreso{% else %}type-gasto{% endif %}">
+                {{ transaccion.get_tipo_display }}
+              </span>
+            </td>
+            <td>{{ transaccion.categoria.nombre }}</td>
+            <td class="{% if transaccion.tipo == 'ingreso' %}amount-positive{% else %}amount-negative{% endif %}">
+              ${{ transaccion.monto }}
+            </td>
+            <td>{{ transaccion.descripcion }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        📝 No hay transacciones registradas<br>
+        <small style="margin-top: 10px; display: block; opacity: 0.8;">
+          Comienza registrando tus primeras ventas y gastos
+        </small>
+      </div>
+      {% endif %}
+
+      <div class="back-link">
+        <a href="{% url 'dashboard' %}" class="btn-back">Volver al Dashboard</a>
+      </div>
+    </div>
+  </body>
+</html>
