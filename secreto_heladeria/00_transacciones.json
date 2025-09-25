@@ -1,0 +1,56 @@
+[
+    {
+        "tipo": "Venta",
+        "monto": 2000.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Helado Chocolate"
+    },
+    {
+        "tipo": "Venta",
+        "monto": 1500.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Helado Vainilla"
+    },
+    {
+        "tipo": "Venta",
+        "monto": 1800.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Helado Fresa"
+    },
+    {
+        "tipo": "Gasto",
+        "monto": 500.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Compra de toppings"
+    },
+    {
+        "tipo": "Gasto",
+        "monto": 300.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Compra de conos"
+    },
+    {
+        "tipo": "Gasto",
+        "monto": 200.0,
+        "fecha": "2025-09-25T01:48:29+00:00",
+        "descripcion": "Compra de servilletas"
+    },
+    {
+        "tipo": "Venta",
+        "monto": 2000.0,
+        "fecha": "2025-09-25T01:42:37+00:00",
+        "descripcion": "Helado Chocolate"
+    },
+    {
+        "tipo": "Venta",
+        "monto": 700.0,
+        "fecha": "2025-09-25T01:42:37+00:00",
+        "descripcion": "Jugo Naranja"
+    },
+    {
+        "tipo": "Venta",
+        "monto": 1500.0,
+        "fecha": "2025-09-25T01:42:37+00:00",
+        "descripcion": "Snack Chips"
+    }
+]
