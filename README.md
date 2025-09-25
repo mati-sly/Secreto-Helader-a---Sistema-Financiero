@@ -186,6 +186,38 @@ EMAIL_HOST_PASSWORD=tu_app_password_real
 - **Dashboard:** Métricas en tiempo real
 - **Reportes:** Base para análisis futuro
 
+Uso de Semillas (Fixtures)
+
+Para poblar la base de datos con datos de ejemplo (categorías, productos y transacciones), sigue estos pasos:
+
+1. Con loaddata
+
+Coloca los archivos JSON de semillas dentro de tu proyecto Django.
+
+Abre la terminal en la carpeta donde está manage.py.
+
+Ejecuta los siguientes comandos:
+
+# Cargar catálogo / tipos e ítems / servicios
+python manage.py loaddata 00_catalogo_categoria_producto_es.json
+
+# Cargar transacciones
+python manage.py loaddata 00_catalogo_transacciones.json
+
+2. Con comando de seeds (opcional)
+
+Si tu proyecto tiene un comando custom (manage.py seed_import):
+
+python manage.py seed_export       # Exporta datos actuales a JSON
+python manage.py seed_import       # Importa los JSON a la BD
+
+3. Notas importantes
+
+Las semillas se usan para crear datos iniciales en la base de datos.
+
+Útil para desarrollo, pruebas o restaurar un entorno con datos realistas.
+
+Ejecuta siempre estos comandos con el entorno virtual activado y la base de datos corriendo.
 ## Desarrollado Para
 
 **Secreto Heladería** - La Serena, Chile
