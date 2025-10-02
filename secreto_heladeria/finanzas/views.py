@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
-from django.utils import timezone
+from datetime import datetime, time, timezone as dt_timezone
+from django.utils import timezone as dj_timezone
 from .models import Transaccion, Producto
 
 def custom_login(request):
@@ -19,15 +20,22 @@ def custom_login(request):
 
 @login_required
 def dashboard(request):
-    hoy = timezone.now().date()
-    ingresos_hoy = Transaccion.objects.filter(tipo='ingreso', fecha__date=hoy).aggregate(Sum('monto'))['monto__sum'] or 0
-    gastos_hoy = Transaccion.objects.filter(tipo='gasto', fecha__date=hoy).aggregate(Sum('monto'))['monto__sum'] or 0
+    hoy = dj_timezone.now().date()
+    inicio = datetime.combine(hoy, time.min, tzinfo=dt_timezone.utc)
+    fin = datetime.combine(hoy, time.max, tzinfo=dt_timezone.utc)
+
+
+    ingresos_hoy = Transaccion.objects.filter(tipo='Venta', fecha__range=(inicio, fin)).aggregate(Sum('monto'))['monto__sum'] or 0
+    gastos_hoy = Transaccion.objects.filter(tipo='Gasto', fecha__range=(inicio, fin)).aggregate(Sum('monto'))['monto__sum'] or 0
+
     
     context = {
         'ingresos_hoy': ingresos_hoy,
         'gastos_hoy': gastos_hoy,
         'utilidad_hoy': ingresos_hoy - gastos_hoy,
-        'transacciones': Transaccion.objects.all()[:10]
+        'transacciones': Transaccion.objects.filter(fecha__range=(inicio, fin)
+).order_by('-fecha')[:10]
+
     }
     return render(request, 'dashboard.html', context)
 
