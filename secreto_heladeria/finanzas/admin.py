@@ -1,23 +1,65 @@
 from django.contrib import admin
 from .models import Categoria, Transaccion, Producto, CodigoRecuperacion
+import csv
+from django.http import HttpResponse
+from .forms import TransaccionInlineFormSet
+
+class TransaccionInline(admin.TabularInline):
+    model = Transaccion
+    extra = 0
+    formset = TransaccionInlineFormSet
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'tipo', 'created_at')
+    list_display = ('nombre', 'tipo')
     search_fields = ('nombre',)
     list_filter = ('tipo',)
+    inlines = [TransaccionInline]
+
+@admin.action(description="Exportar transacciones seleccionadas a CSV")
+def exportar_transacciones_csv(modeladmin, request, queryset):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="transacciones.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Usuario', 'Categoría', 'Tipo', 'Monto', 'Descripción', 'Fecha'])
+
+    for transaccion in queryset:
+        writer.writerow([
+            transaccion.usuario.username,
+            transaccion.categoria.nombre,
+            transaccion.tipo,
+            transaccion.monto,
+            transaccion.descripcion,
+            transaccion.fecha.strftime('%d/%m/%Y %H:%M')
+        ])
+
+    return response
 
 @admin.register(Transaccion)
 class TransaccionAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'categoria', 'tipo', 'monto', 'descripcion', 'fecha')
     search_fields = ('descripcion', 'usuario__username')
     list_filter = ('tipo', 'categoria')
+    actions = [exportar_transacciones_csv]
+
+# Aquí vienen las dos nuevas acciones para activar/desactivar productos
+@admin.action(description="Activar productos seleccionados")
+def activar_productos(modeladmin, request, queryset):
+    updated = queryset.update(activo=True)
+    modeladmin.message_user(request, f"{updated} productos activados correctamente.")
+
+@admin.action(description="Desactivar productos seleccionados")
+def desactivar_productos(modeladmin, request, queryset):
+    updated = queryset.update(activo=False)
+    modeladmin.message_user(request, f"{updated} productos desactivados correctamente.")
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'categoria', 'costo_unitario', 'precio_venta', 'stock', 'activo')
     search_fields = ('nombre',)
     list_filter = ('categoria', 'activo')
+    actions = [activar_productos, desactivar_productos]
 
 @admin.register(CodigoRecuperacion)
 class CodigoRecuperacionAdmin(admin.ModelAdmin):

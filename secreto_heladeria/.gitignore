@@ -5,3 +5,5 @@ db.sqlite3
 venv/
 .vscode/
 *.log
+.json
+.sqlite
