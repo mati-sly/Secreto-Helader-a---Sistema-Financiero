@@ -1,4 +1,6 @@
+
 from django.contrib import admin
+
 from .models import Categoria, Transaccion, Producto, CodigoRecuperacion
 import csv
 from django.http import HttpResponse
@@ -66,3 +68,4 @@ class CodigoRecuperacionAdmin(admin.ModelAdmin):
     list_display = ('email', 'codigo', 'created_at', 'usado', 'intentos')
     search_fields = ('email', 'codigo')
     list_filter = ('usado',)
+

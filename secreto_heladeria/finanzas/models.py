@@ -1,8 +1,13 @@
+#Alma: agregué el archivo admin.py para registrar el modelo Organization en el panel de administración de Django.
+#que le faltaba
+#Además, registré los modelos UserProfile y Transaccion para facilitar la gestión desde el admin.   
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import random
 from datetime import timedelta
+
 
 class Categoria(models.Model):
     TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
@@ -13,6 +18,27 @@ class Categoria(models.Model):
         return f"{self.nombre} ({self.get_tipo_display()})"
 
 
+
+class Organization(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=200, blank=True, null=True)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)  # ✅ lo mantengo
+
+    def __str__(self):
+        return self.nombre
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.organization.nombre if self.organization else 'Sin organización'}"
+
+
 class Transaccion(models.Model):
     TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -21,16 +47,18 @@ class Transaccion(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True)
     fecha = models.DateTimeField(default=timezone.now)
-    
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)  # ✅ nuevo campo
+
     class Meta:
         ordering = ['-fecha']
     
     def __str__(self):
         return f"{self.get_tipo_display()}: ${self.monto}"
 
+
 class Producto(models.Model):
     CATEGORIAS = [
-        ('helado', 'Helado'), ('cafe', 'Café'), 
+        ('helado', 'Helado'), ('cafe', 'Café'),
         ('pasteleria', 'Pastelería'), ('otro', 'Otro')
     ]
     nombre = models.CharField(max_length=100)
@@ -42,6 +70,7 @@ class Producto(models.Model):
     
     def __str__(self):
         return f"{self.nombre} - ${self.precio_venta}"
+
 
 class CodigoRecuperacion(models.Model):
     email = models.EmailField()
