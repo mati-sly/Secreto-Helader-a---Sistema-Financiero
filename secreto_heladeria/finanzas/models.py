@@ -5,6 +5,7 @@ import random
 from datetime import timedelta
 from django.conf import settings 
 
+
 class Categoria(models.Model):
     TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
     nombre = models.CharField(max_length=100)
@@ -12,6 +13,34 @@ class Categoria(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.get_tipo_display()})"
+
+
+# Alma: agregué el archivo admin.py para registrar el modelo Organization en el panel de administración de Django.
+# que le faltaba
+# Además, registré los modelos UserProfile y Transaccion para facilitar la gestión desde el admin.   
+class Organization(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=200, blank=True, null=True)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)  # ✅ lo mantengo
+
+    def __str__(self):
+        return self.nombre
+
+
+class UserProfile(models.Model):
+    #crear el UserProfile para extender el modelo User y agregarle la organizacion, rut, telefono y direccion 
+    # para asignar a cada usuario una organizacion
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.CharField(max_length=50, blank=True, null=True)
+    rut = models.CharField(max_length=12, unique=True, blank=True, null=True)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    direccion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.organization.nombre if self.organization else 'Sin organización'}"
 
 
 class Transaccion(models.Model):
@@ -22,16 +51,18 @@ class Transaccion(models.Model):
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True)
     fecha = models.DateTimeField(default=timezone.now)
-    
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True)  # ✅ nuevo campo
+
     class Meta:
         ordering = ['-fecha']
     
     def __str__(self):
         return f"{self.get_tipo_display()}: ${self.monto}"
 
+
 class Producto(models.Model):
     CATEGORIAS = [
-        ('helado', 'Helado'), ('cafe', 'Café'), 
+        ('helado', 'Helado'), ('cafe', 'Café'),
         ('pasteleria', 'Pastelería'), ('otro', 'Otro')
     ]
     nombre = models.CharField(max_length=100)
@@ -43,6 +74,7 @@ class Producto(models.Model):
     
     def __str__(self):
         return f"{self.nombre} - ${self.precio_venta}"
+
 
 class CodigoRecuperacion(models.Model):
     email = models.EmailField()
@@ -75,23 +107,3 @@ class CodigoRecuperacion(models.Model):
     
     def __str__(self):
         return f"Código {self.codigo} para {self.email}"
-    
-    # Alma - Cree una clase Organization para futuras aunque secreto heladeria tiene solo una sucursal que es la ubicada en La Serena
-class Organization(models.Model):
-    name = models.CharField(max_length=150, unique=True)
-
-    def __str__(self):
-        return self.name
-    
-#crear el UserProfile para extender el modelo User y agregarle la organizacion, rut, telefono y direccion 
-# para asignar a cada usuario una organizacion
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
-    rut = models.CharField(max_length=12, unique=True)
-    telefono = models.CharField(max_length=20, blank=True)
-    direccion = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"{self.user.username} @ {self.organization.name}"
