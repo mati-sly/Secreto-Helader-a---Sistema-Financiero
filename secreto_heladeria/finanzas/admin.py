@@ -3,6 +3,23 @@ from .models import Categoria, Transaccion, Producto, CodigoRecuperacion
 import csv
 from django.http import HttpResponse
 from .forms import TransaccionInlineFormSet
+from .models import Organization, UserProfile  
+
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+    
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'get_group', 'organization', 'rut', 'telefono')
+
+    def get_group(self, obj):
+        groups = obj.user.groups.all()
+        return ", ".join([group.name for group in groups]) if groups else "Sin grupo"
+    get_group.short_description = 'Rol'
+
+admin.site.register(UserProfile, UserProfileAdmin)
+
 
 class TransaccionInline(admin.TabularInline):
     model = Transaccion

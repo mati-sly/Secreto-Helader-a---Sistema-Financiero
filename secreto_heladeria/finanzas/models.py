@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import random
 from datetime import timedelta
+from django.conf import settings 
 
 class Categoria(models.Model):
     TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
@@ -74,3 +75,23 @@ class CodigoRecuperacion(models.Model):
     
     def __str__(self):
         return f"Código {self.codigo} para {self.email}"
+    
+    # Alma - Cree una clase Organization para futuras aunque secreto heladeria tiene solo una sucursal que es la ubicada en La Serena
+class Organization(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+#crear el UserProfile para extender el modelo User y agregarle la organizacion, rut, telefono y direccion 
+# para asignar a cada usuario una organizacion
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT)
+    rut = models.CharField(max_length=12, unique=True)
+    telefono = models.CharField(max_length=20, blank=True)
+    direccion = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} @ {self.organization.name}"
