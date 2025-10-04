@@ -1,12 +1,17 @@
+import random
+from datetime import timedelta
+
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-import random
-from datetime import timedelta
-from django.conf import settings 
+
 
 class Categoria(models.Model):
-    TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
+    TIPOS = [
+        ('ingreso', 'Ingreso'),
+        ('gasto', 'Gasto')
+    ]
     nombre = models.CharField(max_length=100)
     tipo = models.CharField(max_length=10, choices=TIPOS)
 
@@ -15,19 +20,23 @@ class Categoria(models.Model):
 
 
 class Transaccion(models.Model):
-    TIPOS = [('ingreso', 'Ingreso'), ('gasto', 'Gasto')]
+    TIPOS = [
+        ('ingreso', 'Ingreso'),
+        ('gasto', 'Gasto')
+    ]
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=10, choices=TIPOS)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(blank=True)
     fecha = models.DateTimeField(default=timezone.now)
-    
+
     class Meta:
         ordering = ['-fecha']
-    
+
     def __str__(self):
         return f"{self.get_tipo_display()}: ${self.monto}"
+
 
 class Producto(models.Model):
     CATEGORIAS = [

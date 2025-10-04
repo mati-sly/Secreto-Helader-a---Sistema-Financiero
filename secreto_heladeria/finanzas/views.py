@@ -20,24 +20,21 @@ def custom_login(request):
 
 @login_required
 def dashboard(request):
-    hoy = dj_timezone.now().date()
-    inicio = datetime.combine(hoy, time.min, tzinfo=dt_timezone.utc)
-    fin = datetime.combine(hoy, time.max, tzinfo=dt_timezone.utc)
+    # Total de ingresos y gastos de todas las transacciones
+    ingresos_totales = Transaccion.objects.filter(tipo='Venta').aggregate(Sum('monto'))['monto__sum'] or 0
+    gastos_totales = Transaccion.objects.filter(tipo='Gasto').aggregate(Sum('monto'))['monto__sum'] or 0
+    utilidad_total = ingresos_totales - gastos_totales
 
+    # Todas las transacciones
+    transacciones = Transaccion.objects.all()
 
-    ingresos_hoy = Transaccion.objects.filter(tipo='Venta', fecha__range=(inicio, fin)).aggregate(Sum('monto'))['monto__sum'] or 0
-    gastos_hoy = Transaccion.objects.filter(tipo='Gasto', fecha__range=(inicio, fin)).aggregate(Sum('monto'))['monto__sum'] or 0
+    return render(request, 'dashboard.html', {
+        'ingresos_hoy': ingresos_totales,
+        'gastos_hoy': gastos_totales,
+        'utilidad_hoy': utilidad_total,
+        'transacciones': transacciones,
+    })
 
-    
-    context = {
-        'ingresos_hoy': ingresos_hoy,
-        'gastos_hoy': gastos_hoy,
-        'utilidad_hoy': ingresos_hoy - gastos_hoy,
-        'transacciones': Transaccion.objects.filter(fecha__range=(inicio, fin)
-).order_by('-fecha')[:10]
-
-    }
-    return render(request, 'dashboard.html', context)
 
 @login_required
 def transacciones_list(request):

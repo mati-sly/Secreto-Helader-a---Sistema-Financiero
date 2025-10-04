@@ -1,0 +1,110 @@
+[
+{
+    "model": "finanzas.transaccion",
+    "pk": 1,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Venta",
+        "monto": "2000.00",
+        "descripcion": "Helado Chocolate",
+        "fecha": "2025-09-25T01:42:37Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 2,
+    "fields": {
+        "usuario": 1,
+        "categoria": 2,
+        "tipo": "Venta",
+        "monto": "700.00",
+        "descripcion": "Jugo Naranja",
+        "fecha": "2025-09-25T01:42:37Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 3,
+    "fields": {
+        "usuario": 1,
+        "categoria": 3,
+        "tipo": "Venta",
+        "monto": "1500.00",
+        "descripcion": "Snack Chips",
+        "fecha": "2025-09-25T01:42:37Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 4,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Venta",
+        "monto": "2000.00",
+        "descripcion": "Helado Chocolate",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 5,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Venta",
+        "monto": "1500.00",
+        "descripcion": "Helado Vainilla",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 6,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Venta",
+        "monto": "1800.00",
+        "descripcion": "Helado Fresa",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 7,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Gasto",
+        "monto": "500.00",
+        "descripcion": "Compra de toppings",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 8,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Gasto",
+        "monto": "300.00",
+        "descripcion": "Compra de conos",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+},
+{
+    "model": "finanzas.transaccion",
+    "pk": 9,
+    "fields": {
+        "usuario": 1,
+        "categoria": 1,
+        "tipo": "Gasto",
+        "monto": "200.00",
+        "descripcion": "Compra de servilletas",
+        "fecha": "2025-09-25T01:48:29Z"
+    }
+}
+]
