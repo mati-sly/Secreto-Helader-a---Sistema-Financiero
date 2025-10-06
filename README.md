@@ -1,4 +1,4 @@
-Perfecto, aquí tienes el README actualizado, incorporando todo lo que comentamos: base de datos con Docker, instalación flexible y el apartado de roles y permisos:
+
 
 ---
 
