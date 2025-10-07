@@ -1,2 +1,17 @@
 Django>=4.2.0
 python-dotenv>=1.0.0
+
+
+Cuando clonen el repo y quieran cargar todo, simplemente hacen:
+ 
+python manage.py migrate
+python manage.py loaddata datos_iniciales.json
+ 
+Abre terminal en la raíz de tu proyecto (donde está manage.py) y ejecuta:
+
+python manage.py dumpdata --indent 2 > datos_iniciales.json
+
+✅ Esto genera el fixture con todos los grupos, usuarios, permisos, organizaciones y perfiles
+
+pip install python-dotenv
+pip install mysqlclient
