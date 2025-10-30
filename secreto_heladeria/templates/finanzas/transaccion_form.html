@@ -1,0 +1,256 @@
+{% extends 'base.html' %} 
+
+<!-- ==== Bloque de Estilos ==== -->
+{% block head %}
+<style>
+  /* Fondo general */
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff4757 0%, #ffeaa7 50%, #ffffff 100%);
+    min-height: 100vh;
+  }
+
+  /* Contenedor principal */
+  .form-container {
+    max-width: 800px;
+    margin: 60px auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(255, 71, 87, 0.2);
+    padding: 40px;
+  }
+
+  .form-container h2 {
+    color: #ff4757;
+    font-size: 2.5em;
+    font-weight: 600;
+    text-shadow: 0 3px 6px rgba(255, 71, 87, 0.3);
+    margin-bottom: 30px;
+    font-family: "Georgia", serif;
+    text-align: center;
+  }
+
+  /* Inputs y selects */
+  .form-container .form-group input,
+  .form-container .form-group select,
+  .form-container .form-group textarea {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 71, 87, 0.2);
+    padding: 15px;
+    font-size: 1em;
+    color: #333;
+    width: 100%;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .form-container .form-group input:focus,
+  .form-container .form-group select:focus,
+  .form-container .form-group textarea:focus {
+    border-color: #ff4757;
+    background: #fff;
+    outline: none;
+  }
+
+  .form-container .form-group label {
+    font-size: 1.1em;
+    color: #ff4757;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Radio buttons */
+  .form-group-radio {
+    margin-bottom: 20px;
+  }
+
+  .form-group-radio label {
+    font-size: 1.1em;
+    color: #ff4757;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .radio-options {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .radio-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: normal; 
+    color: #333; 
+  }
+
+  input[type="radio"] {
+    transform: scale(1.3);
+    accent-color: #ff4757;
+    cursor: pointer;
+  }
+
+  /* Botones */
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(255, 234, 167, 0.4);
+  }
+
+  .btn-action {
+    color: white;
+    padding: 12px 25px;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    color: white;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, #00b894, #00a884); /* Verde */
+  }
+
+  .btn-cancel {
+    background: linear-gradient(135deg, #636e72, #2d3436); /* Gris */
+  }
+
+  .errorlist {
+    color: #e74c3c;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    list-style: none;
+    padding-left: 0;
+  }
+</style>
+{% endblock %}
+
+
+<!-- ==== Bloque de Contenido ==== -->
+{% block content %}
+<div class="form-container">
+  <h2>{{ titulo }}</h2>
+
+  <!-- ==== PASO 1: Añadir ID al formulario ==== -->
+  <form method="POST" id="transaccion-form">
+    {% csrf_token %} 
+    
+    <!-- Bucle de campos del formulario -->
+    {% for field in form %} 
+      {% if field.name == 'tipo' %}
+        <div class="form-group-radio">
+          {{ field.label_tag }}
+          <div class="radio-options">
+            {% for radio in field %}
+            <label for="{{ radio.id_for_label }}">
+              {{ radio.tag }} {{ radio.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="form-group">
+          {{ field.label_tag }} 
+          {{ field }} 
+          {% if field.errors %}
+          <div class="errorlist">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endif %} 
+    {% endfor %}
+    <!-- Fin del bucle -->
+
+    <div class="form-actions">
+      <!-- ==== PASO 2: Añadir ID al botón de guardar ==== -->
+      <button type="submit" class="btn-action btn-save" id="btn-guardar">Guardar</button>
+      
+      <a href="{% url 'finanzas:transacciones' %}" class="btn-action btn-cancel" id="btn-cancelar">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- ==== PASO 3: Scripts de confirmación para "Cancelar" y "Guardar" ==== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- Lógica para el botón Cancelar (ya la tenías) ---
+    const cancelButton = document.getElementById('btn-cancelar');
+    if (cancelButton) {
+      cancelButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        const targetUrl = event.target.href;
+
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: "Los cambios que no hayas guardado se perderán.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ff4757',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, salir',
+          cancelButtonText: 'Quedarme'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = targetUrl;
+          }
+        });
+      });
+    }
+
+    // --- Lógica NUEVA para el botón Guardar ---
+    const form = document.getElementById('transaccion-form');
+    const saveButton = document.getElementById('btn-guardar');
+    
+    if (form && saveButton) {
+      // Escuchamos el evento 'submit' del formulario
+      form.addEventListener('submit', function(event) {
+        // Prevenimos el envío automático
+        event.preventDefault(); 
+        
+        Swal.fire({
+          title: '¿Guardar transacción?',
+          text: "Se registrarán los datos ingresados.",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#00b894', // Color verde de guardar
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, guardar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Si el usuario confirma, enviamos el formulario
+            form.submit();
+          }
+        });
+      });
+    }
+
+  });
+</script>
+
+{% endblock %}
+

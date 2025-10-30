@@ -8,6 +8,7 @@ Abre terminal en la raíz de tu proyecto (donde está manage.py) y ejecuta:
 
 pip install mysqlclient
 pip install django
+pip install pillow
 pip install python-dotenv
 python manage.py migrate
 python manage.py loaddata datos_iniciales.json

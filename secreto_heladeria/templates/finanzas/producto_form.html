@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block head %}
+<style>
+  /* Sobreescribimos el fondo del body que viene de base.html */
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff4757 0%, #ffeaa7 50%, #ffffff 100%);
+    min-height: 100vh;
+  }
+
+  /* Contenedor principal del formulario */
+  .form-container {
+    max-width: 800px;
+    margin: 60px auto; /* Añadido margen superior/inferior */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(255, 71, 87, 0.2);
+    padding: 40px;
+  }
+
+  .form-container h2 {
+    color: #ff4757;
+    font-size: 2.5em;
+    font-weight: 600;
+    text-shadow: 0 3px 6px rgba(255, 71, 87, 0.3);
+    margin-bottom: 30px;
+    font-family: "Georgia", serif;
+    text-align: center;
+  }
+  
+  /* Ajuste para los inputs del formulario con este estilo */
+  .form-container .form-group input,
+  .form-container .form-group select {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 71, 87, 0.2);
+    padding: 15px;
+    font-size: 1em;
+    color: #333;
+    /* Hereda .form-group input de base.html: width: 100%, border-radius: 8px, etc. */
+  }
+  .form-container .form-group input:focus,
+  .form-container .form-group select:focus {
+    border-color: #ff4757;
+    background: #fff;
+    outline: none; /* Añadido para quitar borde azul en focus */
+  }
+  .form-container .form-group label {
+    font-size: 1.1em;
+    color: #ff4757;
+    font-weight: 600;
+    display: block; /* Asegura que el label esté arriba */
+    margin-bottom: 8px; /* Espacio entre label e input */
+  }
+
+  /* Añadido margen a los form-group */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  /* Estilo para el Checkbox (Activo) */
+  .form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 71, 87, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+  }
+  .form-group-checkbox label {
+    margin-bottom: 0;
+    font-size: 1.1em;
+    color: #ff4757;
+    font-weight: 600;
+  }
+  .form-group-checkbox input {
+    width: auto;
+    height: 20px;
+    width: 20px;
+    accent-color: #ff4757; /* Color del check */
+  }
+
+  /* Contenedor de botones del formulario */
+  .form-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(255, 234, 167, 0.4);
+  }
+  
+  .btn-action {
+    color: white;
+    padding: 12px 25px;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    color: white;
+  }
+  
+  .btn-save {
+    background: linear-gradient(135deg, #00b894, #00a884); /* Verde */
+  }
+  .btn-cancel {
+    background: linear-gradient(135deg, #636e72, #2d3436); /* Gris */
+  }
+
+  /* Estilos para errores de formulario */
+  .alert-error {
+    color: #d63031;
+    background: #ffe6e6;
+  }
+
+</style>
+{% endblock %} 
+
+{% block content %}
+<div class="form-container">
+  <h2>{{ titulo }}</h2>
+
+  <!-- ==== PASO 1: Añadir ID al formulario ==== -->
+  <form method="POST" id="producto-form">
+    {% csrf_token %}
+    
+    {% for field in form %}
+      
+      {% if field.name == 'activo' %}
+        <div class="form-group-checkbox">
+          {{ field }}
+          {{ field.label_tag }}
+        </div>
+      {% else %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+        </div>
+      {% endif %}
+
+      {% if field.help_text %}
+        <small style="color: #666; margin-top: -10px; display: block; margin-bottom: 10px;">
+          {{ field.help_text }}
+        </small>
+      {% endif %}
+
+      {% for error in field.errors %}
+        <div class="alert alert-error" style="padding: 8px; margin-top: -10px; margin-bottom: 10px; border-radius: 5px;">
+          {{ error }}
+        </div>
+      {% endfor %}
+
+    {% endfor %}
+    
+    <div class="form-buttons">
+      <!-- ==== PASO 2: Añadir ID al botón Cancelar ==== -->
+      <a href="{% url 'finanzas:productos' %}" class="btn-action btn-cancel" id="btn-cancelar">Cancelar</a>
+      
+      <!-- ==== PASO 3: Corregir typo 'type-' y añadir ID ==== -->
+      <button type="submit" class="btn-action btn-save" id="btn-guardar">Guardar Producto</button>
+    </div>
+  </form>
+</div>
+
+<!-- ==== PASO 4: Añadir Scripts de SweetAlert ==== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- Lógica para el botón Cancelar ---
+    const cancelButton = document.getElementById('btn-cancelar');
+    if (cancelButton) {
+      cancelButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        const targetUrl = event.target.href;
+
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: "Los cambios que no hayas guardado se perderán.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ff4757',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, salir',
+          cancelButtonText: 'Quedarme'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = targetUrl;
+          }
+        });
+      });
+    }
+
+    // --- Lógica para el botón Guardar ---
+    const form = document.getElementById('producto-form');
+    
+    if (form) {
+      form.addEventListener('submit', function(event) {
+        // Prevenimos el envío automático
+        event.preventDefault(); 
+        
+        Swal.fire({
+          title: '¿Guardar producto?',
+          text: "Se registrarán los datos del producto.",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#00b894', // Color verde de guardar
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, guardar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Si el usuario confirma, enviamos el formulario
+            form.submit();
+          }
+        });
+      });
+    }
+
+  });
+</script>
+{% endblock %}

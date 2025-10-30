@@ -1,157 +1,170 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Código de Recuperación - Secreto Heladería</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f7f7;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #ff4757 0%, #ffeaa7 50%, #ffffff 100%);
-            padding: 40px 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: linear-gradient(
+          135deg,
+          #ff4757 0%,
+          #ffeaa7 50%,
+          #ffffff 100%
+        );
+        padding: 40px 0;
+      }
+      .email-card {
+        background: white;
+        margin: 0 20px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+      .logo {
+        font-size: 3em;
+        margin-bottom: 10px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 1.8em;
+        font-weight: 600;
+        font-family: Georgia, serif;
+      }
+      .content {
+        padding: 40px 30px;
+        text-align: center;
+      }
+      .code-container {
+        background: linear-gradient(135deg, #ff4757, #ff3742);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 30px 0;
+        box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+      }
+      .code {
+        font-size: 3em;
+        font-weight: bold;
+        letter-spacing: 8px;
+        margin: 10px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .code-label {
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .instructions {
+        background: rgba(255, 234, 167, 0.3);
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #ff4757;
+      }
+      .timer-warning {
+        background: rgba(255, 71, 87, 0.1);
+        color: #d63031;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 600;
+      }
+      .footer {
+        background: #f8f9fa;
+        padding: 20px 30px;
+        text-align: center;
+        color: #666;
+        font-size: 0.9em;
+      }
+      .footer a {
+        color: #ff4757;
+        text-decoration: none;
+      }
+      @media (max-width: 480px) {
         .email-card {
-            background: white;
-            margin: 0 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #ff4757, #ff3742);
-            color: white;
-            text-align: center;
-            padding: 30px 20px;
-        }
-        .logo {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 1.8em;
-            font-weight: 600;
-            font-family: Georgia, serif;
+          margin: 0 10px;
         }
         .content {
-            padding: 40px 30px;
-            text-align: center;
-        }
-        .code-container {
-            background: linear-gradient(135deg, #ff4757, #ff3742);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+          padding: 30px 20px;
         }
         .code {
-            font-size: 3em;
-            font-weight: bold;
-            letter-spacing: 8px;
-            margin: 10px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          font-size: 2.5em;
+          letter-spacing: 4px;
         }
-        .code-label {
-            font-size: 1.1em;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .instructions {
-            background: rgba(255, 234, 167, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #ff4757;
-        }
-        .timer-warning {
-            background: rgba(255, 71, 87, 0.1);
-            color: #d63031;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: 600;
-        }
-        .footer {
-            background: #f8f9fa;
-            padding: 20px 30px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-        }
-        .footer a {
-            color: #ff4757;
-            text-decoration: none;
-        }
-        @media (max-width: 480px) {
-            .email-card {
-                margin: 0 10px;
-            }
-            .content {
-                padding: 30px 20px;
-            }
-            .code {
-                font-size: 2.5em;
-                letter-spacing: 4px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="email-card">
-            <div class="header">
-                <div class="logo">🍨</div>
-                <h1>Secreto Heladería</h1>
-                <p>Recuperación de Contraseña</p>
-            </div>
-            
-            <div class="content">
-                <h2 style="color: #ff4757; margin-bottom: 20px;">Código de Verificación</h2>
-                
-                <p style="font-size: 1.1em; line-height: 1.6; margin-bottom: 20px;">
-                    Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en nuestro sistema financiero.
-                </p>
-                
-                <div class="code-container">
-                    <div class="code-label">Tu código de verificación es:</div>
-                    <div class="code">{{ codigo }}</div>
-                </div>
-                
-                <div class="instructions">
-                    <h3 style="color: #ff4757; margin-bottom: 15px;">📋 Instrucciones:</h3>
-                    <ol style="text-align: left; padding-left: 20px; line-height: 1.8;">
-                        <li>Regresa a la página de recuperación de contraseña</li>
-                        <li>Ingresa este código de 4 dígitos</li>
-                        <li>Establece tu nueva contraseña</li>
-                    </ol>
-                </div>
-                
-                <div class="timer-warning">
-                    ⏰ <strong>Importante:</strong> Este código expira en 1 minuto por seguridad.
-                </div>
-                
-                <p style="color: #666; font-size: 0.95em; margin-top: 30px;">
-                    Si no solicitaste este cambio, puedes ignorar este email. Tu cuenta permanecerá segura.
-                </p>
-            </div>
-            
-            <div class="footer">
-                <p><strong>Secreto Heladería</strong> - Sistema de Gestión Financiera</p>
-                <p>La Serena, Chile</p>
-                <p style="margin-top: 15px; font-size: 0.8em;">
-                    Este es un email automático, por favor no responder.
-                </p>
-            </div>
+      <div class="email-card">
+        <div class="header">
+          <h1>Secreto Heladería</h1>
+          <p>Recuperación de Contraseña</p>
         </div>
+
+        <div class="content">
+          <h2 style="color: #ff4757; margin-bottom: 20px">
+            Código de Verificación
+          </h2>
+
+          <p style="font-size: 1.1em; line-height: 1.6; margin-bottom: 20px">
+            Hemos recibido una solicitud para restablecer la contraseña de tu
+            cuenta en nuestro sistema financiero.
+          </p>
+
+          <div class="code-container">
+            <div class="code-label">Tu código de verificación es:</div>
+            <div class="code">{{ codigo }}</div>
+          </div>
+
+          <div class="instructions">
+            <h3 style="color: #ff4757; margin-bottom: 15px">
+              📋 Instrucciones:
+            </h3>
+            <ol style="text-align: left; padding-left: 20px; line-height: 1.8">
+              <li>Regresa a la página de recuperación de contraseña</li>
+              <li>Ingresa este código de 4 dígitos</li>
+              <li>Establece tu nueva contraseña</li>
+            </ol>
+          </div>
+
+          <div class="timer-warning">
+            <strong>Importante:</strong> Este código expira en 1 minuto por
+            seguridad.
+          </div>
+
+          <p style="color: #666; font-size: 0.95em; margin-top: 30px">
+            Si no solicitaste este cambio, puedes ignorar este email. Tu cuenta
+            permanecerá segura.
+          </p>
+        </div>
+
+        <div class="footer">
+          <p>
+            <strong>Secreto Heladería</strong> - Sistema de Gestión Financiera
+          </p>
+          <p>La Serena, Chile</p>
+          <p style="margin-top: 15px; font-size: 0.8em">
+            Este es un email automático, por favor no responder.
+          </p>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

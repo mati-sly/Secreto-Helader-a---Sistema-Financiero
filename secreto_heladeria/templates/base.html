@@ -7,6 +7,7 @@
       {% block title %}Secreto Heladería - Sistema Financiero{% endblock %}
     </title>
     <style>
+      /* ... (Todos tus estilos CSS van aquí - sin cambios) ... */
       * {
         margin: 0;
         padding: 0;
@@ -50,22 +51,6 @@
         transition: all 0.3s;
       }
       .nav a:hover {
-        background: #ff4757;
-        color: white;
-      }
-      .nav .logout-btn {
-        background: none;
-        border: none;
-        color: #2f3542;
-        cursor: pointer;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        transition: all 0.3s;
-        margin-left: 2rem;
-        font-family: inherit;
-        font-size: inherit;
-      }
-      .nav .logout-btn:hover {
         background: #ff4757;
         color: white;
       }
@@ -123,6 +108,18 @@
         background: #d4edda;
         color: #155724;
       }
+      .alert-warning {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .alert-info {
+        background: #e7f3fe;
+        color: #0c5460;
+      }
+      .alert-debug {
+        background: #f8f9fa;
+        color: #5a6268;
+      }
       .stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -157,29 +154,266 @@
         font-weight: 600;
         color: #2f3542;
       }
+
+      /* --- Estilos para el Menú de Perfil (sin cambios) --- */
+      .profile-menu {
+        position: relative;
+        margin-left: 2rem;
+      }
+      .profile-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #f1f3f5;
+        color: #ff4757;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        overflow: hidden;
+        border: 2px solid transparent;
+        position: relative;
+      }
+      .profile-icon:hover {
+        border-color: #ff4757;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+      }
+      .profile-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .profile-icon svg {
+        width: 22px;
+        height: 22px;
+      }
+      .profile-icon.has-photo {
+        border-color: #ff4757;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 110%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
+        z-index: 1000;
+        overflow: hidden;
+        padding: 8px 0;
+      }
+      .dropdown-menu.show {
+        display: block;
+        animation: fadeIn 0.2s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .dropdown-header {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+      }
+      .dropdown-header .user-name {
+        font-weight: 600;
+        color: #2f3542;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 2px;
+      }
+      .dropdown-header .user-email {
+        font-size: 12px;
+        color: #6c757d;
+      }
+      .dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 10px 15px;
+        color: #2f3542;
+        text-decoration: none;
+        background: none;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .dropdown-item:hover {
+        background-color: #f8f9fa;
+      }
+      .dropdown-item svg {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+      .logout-btn-dropdown {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: #d63031;
+      }
+      .logout-btn-dropdown:hover {
+        background-color: #ffe6e6;
+      }
+      .dropdown-divider {
+        height: 1px;
+        background-color: #e9ecef;
+        margin: 4px 0;
+      }
     </style>
+    
+    <!-- ==== PASO 1: Instalar SweetAlert ==== -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {% block head %}{% endblock %}
   </head>
   <body>
     {% if user.is_authenticated %}
     <div class="header">
-      <div class="logo">🍨 Secreto Heladería</div>
+      <div class="logo">Secreto Heladería</div>
       <nav class="nav">
         <a href="{% url 'dashboard' %}">Dashboard</a>
         <a href="{% url 'finanzas:transacciones' %}">Transacciones</a>
         <a href="{% url 'finanzas:productos' %}">Productos</a>
-        <a href="{% url 'finanzas:reportes' %}">Reportes</a>
-        <form method="post" action="{% url 'logout' %}" style="display: inline">
-          {% csrf_token %}
-          <button type="submit" class="logout-btn">Cerrar Sesión</button>
-        </form>
+
+        <!-- Menú de Perfil -->
+        <div class="profile-menu">
+          <div class="profile-icon {% if user.profile|default:None and user.profile.foto and user.profile.foto.url != '/media/perfiles/default.png' %}has-photo{% endif %}" id="profileIcon">
+            {% if user.profile|default:None and user.profile.foto %}
+              <!-- Mostrar la foto del usuario -->
+              <img src="{{ user.profile.foto.url }}" alt="{{ user.username }}">
+            {% else %}
+              <!-- Ícono SVG por defecto si no hay foto -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            {% endif %}
+          </div>
+
+          <!-- Menú desplegable -->
+          <div class="dropdown-menu" id="profileDropdown">
+            <!-- Header con info del usuario -->
+            <div class="dropdown-header">
+              <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+
+            <!-- Opción de editar perfil -->
+            <a href="{% url 'editar_perfil' %}" class="dropdown-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Editar Perfil
+            </a>
+
+            <div class="dropdown-divider"></div>
+
+            <!-- ==== PASO 2: Añadir un ID al formulario ==== -->
+            <form method="post" action="{% url 'logout' %}" style="margin: 0" id="logout-form">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-item logout-btn-dropdown">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Cerrar Sesión
+              </button>
+            </form>
+          </div>
+        </div>
       </nav>
     </div>
     {% endif %}
 
     <div class="container">
-      {% if messages %} {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %} {% endif %} {% block content %}{% endblock %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      
+      {% block content %}{% endblock %}
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const profileIcon = document.getElementById("profileIcon");
+        const profileDropdown = document.getElementById("profileDropdown");
+
+        if (profileIcon && profileDropdown) {
+          // (Lógica existente para mostrar/ocultar el dropdown)
+          profileIcon.addEventListener("click", function (event) {
+            event.stopPropagation();
+            profileDropdown.classList.toggle("show");
+          });
+
+          window.addEventListener("click", function (event) {
+            if (
+              !profileIcon.contains(event.target) &&
+              !profileDropdown.contains(event.target)
+            ) {
+              profileDropdown.classList.remove("show");
+            }
+          });
+
+          document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && profileDropdown.classList.contains("show")) {
+              profileDropdown.classList.remove("show");
+            }
+          });
+        }
+
+        // ==== PASO 3: Añadir lógica de SweetAlert para Logout ====
+        const logoutForm = document.getElementById("logout-form");
+        
+        if (logoutForm) {
+          logoutForm.addEventListener("submit", function (event) {
+            // 1. Previene que el formulario se envíe de inmediato
+            event.preventDefault(); 
+            
+            // 2. Muestra la alerta de confirmación
+            Swal.fire({
+              title: '¿Estás seguro?',
+              text: "Se cerrará tu sesión actual.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#247ac4ff', // Color rojo del proyecto
+              cancelButtonColor: '#6c757d', // Color gris
+              confirmButtonText: 'cerrar sesión',
+              cancelButtonText: 'Cancelar'
+            }).then((result) => {
+              // 3. Si el usuario hace clic en "Sí"
+              if (result.isConfirmed) {
+                // Envía el formulario manualmente
+                logoutForm.submit(); 
+              }
+            });
+          });
+        }
+        // ==== Fin de la lógica de SweetAlert ====
+        
+      });
+    </script>
   </body>
 </html>
+

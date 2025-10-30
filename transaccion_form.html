@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<style>
+body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ff4757 0%,#ffeaa7 50%,#ffffff 100%);min-height:100vh}.form-container{max-width:800px;margin:0 auto;background:rgba(255,255,255,0.95);backdrop-filter:blur(15px);border-radius:25px;box-shadow:0 15px 40px rgba(255,71,87,0.2);padding:40px}.form-container h2{color:#ff4757;font-size:2.5em;font-weight:600;text-shadow:0 3px 6px rgba(255,71,87,0.3);margin-bottom:30px;font-family:"Georgia",serif;text-align:center}.form-container .form-group input,.form-container .form-group select,.form-container .form-group textarea{background:rgba(255,255,255,0.8);border:2px solid rgba(255,71,87,0.2);padding:15px;font-size:1em;color:#333;width:100%;border-radius:8px;box-sizing:border-box;margin-top:5px}.form-container .form-group input:focus,.form-container .form-group select:focus,.form-container .form-group textarea:focus{border-color:#ff4757;background:#fff;outline:none}.form-container .form-group label{font-size:1.1em;color:#ff4757;font-weight:600;display:block;margin-bottom:5px}.form-container .form-group textarea{min-height:100px;resize:vertical}.form-buttons{display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding-top:20px;border-top:2px solid rgba(255,234,167,0.4)}.btn-action{color:white;padding:12px 25px;text-decoration:none;border-radius:20px;font-size:14px;font-weight:600;transition:all 0.3s ease;box-shadow:0 4px 15px rgba(0,0,0,0.2);display:inline-block;text-transform:uppercase;letter-spacing:0.5px;border:none;cursor:pointer;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif}.btn-action:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.3);text-decoration:none;color:white}.btn-save{background:linear-gradient(135deg,#00b894,#00a884)}.btn-cancel{background:linear-gradient(135deg,#636e72,#2d3436)}
+</style>
+<div class="form-container">
+<h2>{{ titulo }}</h2>
+<form method="POST">
+{% csrf_token %}
+{% for field in form %}
+<div class="form-group">
+{{ field.label_tag }}
+{{ field }}
+{% if field.help_text %}
+<small style="color:#666;margin-top:5px;display:block">{{ field.help_text }}</small>
+{% endif %}
+{% for error in field.errors %}
+<div class="alert alert-error" style="padding:8px;margin-top:5px;border-radius:5px">{{ error }}</div>
+{% endfor %}
+</div>
+{% endfor %}
+<div class="form-buttons">
+<a href="{% url 'finanzas:transacciones' %}" class="btn-action btn-cancel">Cancelar</a>
+<button type="submit" class="btn-action btn-save">Guardar Transacción</button>
+</div>
+</form>
+</div>
+{% endblock %}
