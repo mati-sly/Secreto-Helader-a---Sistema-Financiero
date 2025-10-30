@@ -13,7 +13,8 @@ secreto_heladeria.sql
 transaccion_form.html
 
 *.log
-
+sql
+.sql
 .DS_Store
 .vscode/
 .idea/
