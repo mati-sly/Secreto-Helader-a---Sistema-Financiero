@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, get_user_model
-from django.contrib.auth.decorators import login_required
+# MODIFICADO: Añadido 'permission_required' al import
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from datetime import datetime, time, timezone as dt_timezone
 from django.utils import timezone as dj_timezone
@@ -10,9 +12,12 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from .models import Transaccion, Producto, CodigoRecuperacion, Categoria, Profile
-from .forms import ProductoForm, TransaccionForm, UserEditForm, ProfileEditForm, RegistrationForm
-from django.http import JsonResponse
+from .forms import ProductoForm, TransaccionForm, UserEditForm, ProfileEditForm, RegistrationForm, RolUsuarioForm 
+from django.http import JsonResponse, HttpResponseNotFound # <-- HttpResponseNotFound es útil
 
+# =======================================================
+# VISTAS DE AUTENTICACIÓN Y DASHBOARD
+# =======================================================
 
 def custom_login(request):
     if request.user.is_authenticated:
@@ -58,6 +63,10 @@ def dashboard(request):
         'transacciones': transacciones_recientes,
     })
 
+# =======================================================
+# VISTAS DE FINANZAS Y CRUD
+# =======================================================
+
 @login_required
 def transacciones_list(request):
     tipo_seleccionado = request.GET.get('tipo', '')
@@ -73,7 +82,14 @@ def transacciones_list(request):
     if query:
         transacciones_qs = transacciones_qs.filter(descripcion__icontains=query)
 
-    items_por_pagina = 5
+    per_page = request.GET.get('per_page', '10') 
+    try:
+        items_por_pagina = int(per_page)
+        if items_por_pagina not in [5, 10, 25]:
+            items_por_pagina = 10
+    except (ValueError, TypeError):
+        items_por_pagina = 10
+
     paginator = Paginator(transacciones_qs, items_por_pagina)
     page_number = request.GET.get('page')
 
@@ -115,7 +131,14 @@ def productos_list(request):
     if query:
         productos_qs = productos_qs.filter(nombre__icontains=query)
 
-    items_por_pagina_prod = 5
+    per_page = request.GET.get('per_page', '10')
+    try:
+        items_por_pagina_prod = int(per_page)
+        if items_por_pagina_prod not in [5, 10, 25]:
+            items_por_pagina_prod = 10
+    except (ValueError, TypeError):
+        items_por_pagina_prod = 10
+
     paginator_prod = Paginator(productos_qs, items_por_pagina_prod)
     page_number_prod = request.GET.get('page')
 
@@ -226,7 +249,9 @@ def recuperar_password(request):
     return render(request, 'registration/password_reset_form.html')
 
 
+# CONTROL DE PERMISOS: Jefe de Ventas y Admin (add_producto)
 @login_required
+@permission_required('finanzas.add_producto', raise_exception=True)
 def producto_create(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
@@ -241,7 +266,9 @@ def producto_create(request):
     contexto = { 'form': form, 'titulo': 'Crear Nuevo Producto' }
     return render(request, 'finanzas/producto_form.html', contexto)
 
+# CONTROL DE PERMISOS: Jefe de Ventas y Admin (change_producto) - Marketing NO tiene este permiso
 @login_required
+@permission_required('finanzas.change_producto', raise_exception=True)
 def producto_update(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -257,7 +284,9 @@ def producto_update(request, pk):
     contexto = { 'form': form, 'titulo': f'Editar Producto: {producto.nombre}'}
     return render(request, 'finanzas/producto_form.html', contexto)
 
+# CONTROL DE PERMISOS: Solo Admin (delete_producto)
 @login_required
+@permission_required('finanzas.delete_producto', raise_exception=True)
 def producto_delete(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
     if request.method == 'POST':
@@ -266,7 +295,9 @@ def producto_delete(request, pk):
         messages.success(request, f'Producto "{nombre_producto}" eliminado.')
     return redirect('finanzas:productos')
 
+# CONTROL DE PERMISOS: Jefe de Ventas y Admin (add_transaccion)
 @login_required
+@permission_required('finanzas.add_transaccion', raise_exception=True)
 def transaccion_create(request):
     if request.method == 'POST':
         form = TransaccionForm(request.POST)
@@ -285,7 +316,9 @@ def transaccion_create(request):
     contexto = { 'form': form, 'titulo': 'Crear Nueva Transacción' }
     return render(request, 'finanzas/transaccion_form.html', contexto)
 
+# CONTROL DE PERMISOS: Jefe de Ventas y Admin (change_transaccion)
 @login_required
+@permission_required('finanzas.change_transaccion', raise_exception=True)
 def transaccion_update(request, pk):
     transaccion = get_object_or_404(Transaccion, pk=pk, usuario=request.user)
     if request.method == 'POST':
@@ -303,13 +336,76 @@ def transaccion_update(request, pk):
     contexto = { 'form': form, 'titulo': 'Editar Transacción' }
     return render(request, 'finanzas/transaccion_form.html', contexto)
 
+# CONTROL DE PERMISOS: Solo Admin (delete_transaccion)
 @login_required
+@permission_required('finanzas.delete_transaccion', raise_exception=True)
 def transaccion_delete(request, pk):
     transaccion = get_object_or_404(Transaccion, pk=pk, usuario=request.user)
     if request.method == 'POST':
         transaccion.delete()
         messages.success(request, 'Transacción eliminada.')
     return redirect('finanzas:transacciones')
+
+
+# =======================================================
+# VISTAS DE GESTIÓN DE USUARIOS Y PERFILES
+# =======================================================
+
+def es_superuser(user):
+    return user.is_superuser
+
+@login_required
+@user_passes_test(es_superuser, login_url='dashboard')
+def gestion_usuarios_view(request):
+    lista_usuarios = User.objects.exclude(pk=request.user.pk).order_by('username')
+    
+    for user in lista_usuarios:
+        # Si el usuario es Superusuario, su rol será 'Admin' para la visualización en la tabla
+        if user.is_superuser:
+            user.rol_actual = 'Admin'
+        else:
+            user.rol_actual = user.groups.first().name if user.groups.exists() else 'Sin Rol'
+    
+    context = {
+        'usuarios': lista_usuarios
+    }
+    return render(request, 'finanzas/gestion_usuarios.html', context)
+
+
+@login_required
+@user_passes_test(es_superuser, login_url='dashboard')
+def editar_rol_view(request, user_id):
+    usuario = get_object_or_404(User, pk=user_id)
+    
+    # Restricción: No se permite editar al único Superuser logueado
+    if usuario == request.user:
+        messages.error(request, "No puedes editar tu propio rol/estado de administrador desde aquí.")
+        return redirect('finanzas:gestion_usuarios')
+
+    # Restricción: Si el usuario es Superuser, no permitir editar el rol (debe hacerse en /admin)
+    if usuario.is_superuser:
+        messages.error(request, "El rol de Superusuario solo puede ser modificado en el panel de administración de Django.")
+        return redirect('finanzas:gestion_usuarios')
+
+
+    if request.method == 'POST':
+        form = RolUsuarioForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"El rol del usuario '{usuario.username}' ha sido actualizado a '{form.cleaned_data['rol_seleccionado']}'.")
+            return redirect('finanzas:gestion_usuarios')
+        else:
+            messages.error(request, "Error al actualizar el rol. Revisa el formulario.")
+    else:
+        form = RolUsuarioForm(instance=usuario)
+    
+    context = {
+        'form': form,
+        'usuario': usuario,
+        'titulo': f'Editar Rol de {usuario.username}'
+    }
+    return render(request, 'finanzas/editar_rol.html', context)
+
 
 @login_required
 def editar_perfil(request):
@@ -335,3 +431,22 @@ def editar_perfil(request):
     context = { 'user_form': user_form, 'profile_form': profile_form, 'titulo': 'Editar Perfil', 'perfil': profile }
     return render(request, 'finanzas/editar_perfil.html', context)
 
+# =======================================================
+# 🌟 MANEJADOR DE ERRORES 404 (NUEVO)
+# Usado por handler404 en urls.py
+# =======================================================
+
+def custom_404_view(request, exception=None):
+    if not request.user.is_authenticated:
+        # Si el usuario NO está logueado, redirige o muestra un error de Acceso Denegado/No Encontrado
+        return render(request, '404_unauthenticated.html', {
+            'message': 'No se pudo encontrar la página solicitada o necesitas iniciar sesión.',
+            'is_authenticated': False
+        }, status=404)
+        
+    else:
+        # Si el usuario está logueado (pero la URL no existe), muestra un 404 genérico
+        return render(request, '404_authenticated.html', {
+            'message': 'La página solicitada no existe. Verifica la dirección URL.',
+            'is_authenticated': True
+        }, status=404)

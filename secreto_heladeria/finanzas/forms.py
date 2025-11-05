@@ -1,6 +1,7 @@
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User, Group # IMPORT NECESARIO PARA ROLUSUARIOFORM
 from .models import Transaccion, Producto, Categoria, Profile 
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -176,3 +177,54 @@ class RegistrationForm(forms.ModelForm):
             user.save()
         return user
 
+
+# =======================================================
+# FORMULARIO DE GESTIÓN DE ROLES (NUEVO)
+# =======================================================
+class RolUsuarioForm(forms.ModelForm):
+    ROLES_CHOICES = (
+        
+        ('Jefe de Ventas', 'Jefe de Ventas'),
+        ('Marketing', 'Marketing'),
+        
+    )
+    
+    rol_seleccionado = forms.ChoiceField(
+        choices=ROLES_CHOICES,
+        required=True,
+        label="Asignar Rol",
+        widget=forms.Select(attrs={'class': 'form-input-css'})
+    )
+
+    class Meta:
+        model = User
+        fields = ['is_active']
+        labels = {'is_active': 'Usuario Activo'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if self.instance and self.instance.pk:
+            current_group = self.instance.groups.first()
+            if current_group:
+                self.initial['rol_seleccionado'] = current_group.name
+            else:
+                self.initial['rol_seleccionado'] = 'Sin Rol'
+        
+        # Añadir clase CSS al checkbox
+        self.fields['is_active'].widget.attrs.update({'class': 'form-input-css'})
+
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        rol_name = self.cleaned_data['rol_seleccionado']
+
+        if commit:
+            user.save()
+            user.groups.clear()
+            
+            if rol_name != 'Sin Rol':
+                group, created = Group.objects.get_or_create(name=rol_name)
+                user.groups.add(group)
+                
+        return user

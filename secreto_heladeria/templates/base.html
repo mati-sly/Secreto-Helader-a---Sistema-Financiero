@@ -7,7 +7,7 @@
       {% block title %}Secreto Heladería - Sistema Financiero{% endblock %}
     </title>
     <style>
-      /* ... (Todos tus estilos CSS van aquí - sin cambios) ... */
+      /* ... (Tus estilos CSS van aquí - sin cambios) ... */
       * {
         margin: 0;
         padding: 0;
@@ -269,9 +269,9 @@
         background-color: #e9ecef;
         margin: 4px 0;
       }
+      /* CLASE .admin-link ELIMINADA para que tome el estilo predeterminado */
     </style>
     
-    <!-- ==== PASO 1: Instalar SweetAlert ==== -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {% block head %}{% endblock %}
@@ -285,14 +285,17 @@
         <a href="{% url 'finanzas:transacciones' %}">Transacciones</a>
         <a href="{% url 'finanzas:productos' %}">Productos</a>
 
-        <!-- Menú de Perfil -->
+        {% if user.is_superuser %}
+        <a href="{% url 'finanzas:gestion_usuarios' %}">
+          Gestión de Usuarios
+        </a>
+        {% endif %}
+
         <div class="profile-menu">
           <div class="profile-icon {% if user.profile|default:None and user.profile.foto and user.profile.foto.url != '/media/perfiles/default.png' %}has-photo{% endif %}" id="profileIcon">
             {% if user.profile|default:None and user.profile.foto %}
-              <!-- Mostrar la foto del usuario -->
               <img src="{{ user.profile.foto.url }}" alt="{{ user.username }}">
             {% else %}
-              <!-- Ícono SVG por defecto si no hay foto -->
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -308,15 +311,12 @@
             {% endif %}
           </div>
 
-          <!-- Menú desplegable -->
           <div class="dropdown-menu" id="profileDropdown">
-            <!-- Header con info del usuario -->
             <div class="dropdown-header">
               <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
               <span class="user-email">{{ user.email }}</span>
             </div>
 
-            <!-- Opción de editar perfil -->
             <a href="{% url 'editar_perfil' %}" class="dropdown-item">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -327,7 +327,6 @@
 
             <div class="dropdown-divider"></div>
 
-            <!-- ==== PASO 2: Añadir un ID al formulario ==== -->
             <form method="post" action="{% url 'logout' %}" style="margin: 0" id="logout-form">
               {% csrf_token %}
               <button type="submit" class="dropdown-item logout-btn-dropdown">
@@ -361,7 +360,6 @@
         const profileDropdown = document.getElementById("profileDropdown");
 
         if (profileIcon && profileDropdown) {
-          // (Lógica existente para mostrar/ocultar el dropdown)
           profileIcon.addEventListener("click", function (event) {
             event.stopPropagation();
             profileDropdown.classList.toggle("show");
@@ -383,37 +381,29 @@
           });
         }
 
-        // ==== PASO 3: Añadir lógica de SweetAlert para Logout ====
         const logoutForm = document.getElementById("logout-form");
         
         if (logoutForm) {
           logoutForm.addEventListener("submit", function (event) {
-            // 1. Previene que el formulario se envíe de inmediato
             event.preventDefault(); 
             
-            // 2. Muestra la alerta de confirmación
             Swal.fire({
               title: '¿Estás seguro?',
               text: "Se cerrará tu sesión actual.",
               icon: 'warning',
               showCancelButton: true,
-              confirmButtonColor: '#247ac4ff', // Color rojo del proyecto
-              cancelButtonColor: '#6c757d', // Color gris
-              confirmButtonText: 'cerrar sesión',
+              confirmButtonColor: '#ff4757', 
+              cancelButtonColor: '#6c757d', 
+              confirmButtonText: 'Cerrar Sesión',
               cancelButtonText: 'Cancelar'
             }).then((result) => {
-              // 3. Si el usuario hace clic en "Sí"
               if (result.isConfirmed) {
-                // Envía el formulario manualmente
                 logoutForm.submit(); 
               }
             });
           });
         }
-        // ==== Fin de la lógica de SweetAlert ====
-        
       });
     </script>
   </body>
 </html>
-

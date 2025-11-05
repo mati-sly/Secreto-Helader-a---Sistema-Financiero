@@ -42,6 +42,12 @@
       font-size: 1.1em;
       margin-top: 5px;
   }
+  
+  .header-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
   .filter-search-form {
     margin-bottom: 30px;
@@ -162,6 +168,7 @@
   }
   .btn-action:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); text-decoration: none; color: white; }
   .btn-new { background: linear-gradient(135deg, #00b894, #00a884); }
+  .btn-excel { background: linear-gradient(135deg, #6c5ce7, #5f3dc4); }
   .btn-edit { background: linear-gradient(135deg, #f0932b, #e67e22); }
   .btn-delete { background: linear-gradient(135deg, #ff4757, #d63031); }
 
@@ -244,7 +251,8 @@
 
   @media (max-width: 768px) {
     .transactions-container { padding: 25px; }
-    .transactions-container .header { flex-direction: column; gap: 15px; }
+    .transactions-container .header { flex-direction: column; gap: 15px; align-items: stretch; }
+    .header-buttons { flex-direction: column; width: 100%; }
     .transactions-container .header h1 { font-size: 2em; }
     .transactions-table th, .transactions-table td { padding: 12px 8px; font-size: 0.9em; }
     .btn-action { padding: 6px 10px; font-size: 12px; }
@@ -264,9 +272,21 @@
       <h1>Registro de Transacciones</h1>
       <p>Control detallado de ingresos y gastos</p>
     </div>
-    <a href="{% url 'finanzas:transaccion_crear' %}" class="btn-action btn-new">
-      Nueva Transacción
-    </a>
+    <div class="header-buttons">
+      
+      {% if perms.finanzas.view_transaccion %}
+      <button onclick="exportarAExcel('.transactions-table', 'transacciones')" class="btn-action btn-excel">
+         Exportar Excel
+      </button>
+      {% endif %}
+
+      {% if perms.finanzas.add_transaccion %}
+      <a href="{% url 'finanzas:transaccion_crear' %}" class="btn-action btn-new">
+        Nueva Transacción
+      </a>
+      {% endif %}
+      
+    </div>
   </div>
 
   <form method="GET" action="{% url 'finanzas:transacciones' %}" class="filter-search-form">
@@ -288,6 +308,14 @@
             {{ cat.nombre }} ({{ cat.get_tipo_display }})
           </option>
         {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="per_page">Mostrar:</label>
+      <select name="per_page" id="per_page" onchange="this.form.submit()">
+        <option value="5" {% if request.GET.per_page == '5' %}selected{% endif %}>5</option>
+        <option value="10" {% if request.GET.per_page == '10' or not request.GET.per_page %}selected{% endif %}>10</option>
+        <option value="25" {% if request.GET.per_page == '25' %}selected{% endif %}>25</option>
       </select>
     </div>
     <div class="search-group">
@@ -327,11 +355,21 @@
         <td>{{ transaccion.descripcion|truncatewords:5|default:"-" }}</td>
         <td>
           <div class="action-buttons">
+            {% if perms.finanzas.change_transaccion %}
             <a href="{% url 'finanzas:transaccion_editar' transaccion.pk %}" class="btn-action btn-edit">Editar</a>
+            {% endif %}
+            
+            {% if perms.finanzas.delete_transaccion %}
             <form action="{% url 'finanzas:transaccion_eliminar' transaccion.pk %}" method="POST" style="display: contents" class="form-eliminar">
               {% csrf_token %}
               <button type="submit" class="btn-action btn-delete">Eliminar</button>
             </form>
+            {% endif %}
+
+            {% if not perms.finanzas.change_transaccion and not perms.finanzas.delete_transaccion %}
+               <span style="color: #6c757d; font-size: 13px;">Solo Lectura</span>
+            {% endif %}
+            
           </div>
         </td>
       </tr>
@@ -383,28 +421,142 @@
     <br />
     <small style="margin-top: 10px; display: block; opacity: 0.8">
       {% if not tipo_seleccionado and not categoria_seleccionada_id and not search_query %}
-        Comienza registrando tus primeras ventas y gastos.
+        {% if perms.finanzas.add_transaccion %}
+          <a href="{% url 'finanzas:transaccion_crear' %}" class="btn-action btn-new" style="margin-top: 20px;">
+            Comienza registrando tus primeras ventas y gastos.
+          </a>
+        {% else %}
+          Comienza registrando tus primeras ventas y gastos.
+        {% endif %}
       {% endif %}
     </small>
   </div>
   {% endif %}
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <script>
+  // Función para exportar tabla a Excel
+  function exportarAExcel(tableSelector, filename) {
+    try {
+      const tabla = document.querySelector(tableSelector);
+      
+      if (!tabla) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se encontró la tabla para exportar'
+        });
+        return;
+      }
+
+      const tbody = tabla.querySelector('tbody');
+      if (!tbody || tbody.rows.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sin datos',
+          text: 'No hay datos para exportar'
+        });
+        return;
+      }
+
+      // Crear un libro de trabajo
+      const wb = XLSX.utils.book_new();
+      
+      // Clonar la tabla para modificarla sin afectar el DOM
+      const tablaClonada = tabla.cloneNode(true);
+      
+      // Eliminar la columna de "Acciones" (última columna)
+      const headers = tablaClonada.querySelectorAll('thead th');
+      const rows = tablaClonada.querySelectorAll('tbody tr');
+      
+      // Solo eliminar la columna de Acciones si existe y si hay más de 0 headers
+      if (headers.length > 0) {
+        headers[headers.length - 1].remove();
+      }
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        // Usar la cantidad de headers restantes para saber si hay una celda de acción
+        if (cells.length > headers.length) { 
+          cells[cells.length - 1].remove();
+        }
+      });
+      
+      // Convertir la tabla modificada a hoja de cálculo
+      const ws = XLSX.utils.table_to_sheet(tablaClonada);
+      
+      // Ajustar el ancho de las columnas automáticamente
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      const colWidths = [];
+      
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        let maxWidth = 10;
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          const cell = ws[cellAddress];
+          if (cell && cell.v) {
+            const cellLength = cell.v.toString().length;
+            maxWidth = Math.max(maxWidth, cellLength);
+          }
+        }
+        colWidths.push({ wch: Math.min(maxWidth + 2, 50) });
+      }
+      ws['!cols'] = colWidths;
+      
+      // Agregar la hoja al libro
+      XLSX.utils.book_append_sheet(wb, ws, "Transacciones");
+      
+      // Generar nombre de archivo con fecha
+      const fecha = new Date().toISOString().split('T')[0];
+      const nombreArchivo = `${filename}_${fecha}.xlsx`;
+      
+      // Descargar el archivo
+      XLSX.writeFile(wb, nombreArchivo);
+      
+      // Mensaje de éxito
+      Swal.fire({
+        icon: 'success',
+        title: '¡Exportado!',
+        text: `Archivo ${nombreArchivo} descargado correctamente`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al exportar',
+        text: 'Hubo un problema al generar el archivo Excel'
+      });
+    }
+  }
+
+  // Script de confirmación de eliminación
   document.addEventListener('DOMContentLoaded', function() {
     const deleteForms = document.querySelectorAll('.form-eliminar');
     deleteForms.forEach(form => {
       form.addEventListener('submit', function(event) {
         event.preventDefault();
         Swal.fire({
-          title: '¿Estás seguro?', text: "¡La transacción será eliminada permanentemente!", icon: 'warning',
-          showCancelButton: true, confirmButtonColor: '#d63031', cancelButtonColor: '#6c757d',
-          confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar'
-        }).then((result) => { if (result.isConfirmed) { event.target.submit(); } });
+          title: '¿Estás seguro?', 
+          text: "¡La transacción será eliminada permanentemente!", 
+          icon: 'warning',
+          showCancelButton: true, 
+          confirmButtonColor: '#d63031', 
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, eliminar', 
+          cancelButtonText: 'Cancelar'
+        }).then((result) => { 
+          if (result.isConfirmed) { 
+            event.target.submit(); 
+          } 
+        });
       });
     });
   });
 </script>
 
 {% endblock %}
-

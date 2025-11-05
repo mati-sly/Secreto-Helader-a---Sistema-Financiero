@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Acceso Requerido</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .error-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .error-card {
+            background-color: #ffffff;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #ff4757; /* Tu color principal */
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            color: #343a40;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        .btn-custom {
+            background-color: #ff4757;
+            border-color: #ff4757;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        .btn-custom:hover {
+            background-color: #d63031;
+            border-color: #d63031;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-code">404</div>
+            <h2 class="error-title">Acceso Restringido o Página No Encontrada</h2>
+            <p class="error-message">
+                Esta página no existe o necesitas iniciar sesión para ver su contenido.
+            </p>
+            <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="btn btn-custom">
+                Ir a Iniciar Sesión
+            </a>
+        </div>
+    </div>
+</body>
+</html>

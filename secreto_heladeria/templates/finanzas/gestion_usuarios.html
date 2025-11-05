@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Usuarios - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2>Gestión de Usuarios del Sistema</h2>
+  <p>Administra los roles de los usuarios para controlar sus permisos y accesos.</p>
+
+  <div style="margin-top: 2rem; overflow-x: auto;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Rol Asignado</th>
+          <th>Email</th>
+          <th>Activo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>
+            {% if u.rol_actual == 'Admin' %}
+              <span style="color: #ff4757; font-weight: bold;">{{ u.rol_actual }}</span>
+            {% elif u.rol_actual == 'Jefe de Ventas' %}
+              <span style="color: #0c5460; font-weight: bold;">{{ u.rol_actual }}</span>
+            {% elif u.rol_actual == 'Marketing' %}
+              <span style="color: #856404; font-weight: bold;">{{ u.rol_actual }}</span>
+            {% else %}
+              <span style="color: #6c757d;">{{ u.rol_actual }}</span>
+            {% endif %}
+          </td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.is_active %}
+              <span style="color: #155724; font-weight: bold;">Sí</span>
+            {% else %}
+              <span style="color: #d63031;">No</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'finanzas:editar_rol' u.id %}" class="btn" style="padding: 8px 15px; background-color: #54a0ff; font-size: 14px;">Rol</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; color: #6c757d;">No hay otros usuarios registrados para gestionar.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

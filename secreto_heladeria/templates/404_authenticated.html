@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Página No Encontrada</title>
+    <style>
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, #ff4757, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-card {
+            background-color: #ffffff;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #ff4757; 
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .error-title {
+            color: #2f3542;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        .btn-custom {
+            background-color: #0984e3; /* Un color secundario, o puedes usar #ff4757 */
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #007bb5;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-code">404</div>
+            <h2 class="error-title">¡Ups! Página No Encontrada</h2>
+            <p class="error-message">
+                La página que estás buscando no existe o la dirección URL es incorrecta.
+                <br>
+                {{ message }}
+            </p>
+            <a href="{% url 'dashboard' %}" class="btn-custom">
+                Volver al Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>
